@@ -3,32 +3,52 @@ A fast deep learning method for large-scale protein-protein interaction screenin
 
 ## Installation
 
-1. Download the environment image using **one** of the following commands:
-
-   - `wget --no-check-certificate https://conglab.swmed.edu/humanPPI/SE3nv.sif`
-   - `wget --no-check-certificate http://prodata.swmed.edu/humanPPI/bulk_download/SE3nv.sif`
-
-2. Clone the repository:
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/CongLabCode/RoseTTAFold2-PPI.git
 
-3. Download the weights to RoseTTAFold2-PPI/src/model:
+2. Download the weights to RoseTTAFold2-PPI/src/model:
 
    ```bash
    cd RoseTTAFold2-PPI/src/models
-   wget --no-check-certificate https://conglab.swmed.edu/humanPPI/downloads/RF2-PPI.pt 
+   wget --no-check-certificate https://conglab.swmed.edu/humanPPI/downloads/RF2-PPI.pt
+
+3. Install conda environment (if cannot use singularity):
+
+   ```bash
+   conda create -n rf2ppi python=3.9
+   pip install numpy==1.21.2
+   pip install pandas==1.5.3
+   pip install torch==1.12.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
+   pip install biopython==1.79
+   pip install scipy==1.7.1
+   pip install einops
 
 ## Usage
-To run RoseTTAFold2-PPI using the Singularity image, use the following command:
 
-```bash
-singularity exec \
-  --bind /path/to/input_and_output_directory:/work/users \
-  --bind /path/to/rosettafold2-ppi/directory:/home/RoseTTAFold2-PPI \
-  --nv SE3nv.sif \
-  /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py input_file"
-```
+1. using singularity:
+
+   Download the environment image using **one** of the following commands:
+
+   - `wget --no-check-certificate https://conglab.swmed.edu/humanPPI/SE3nv.sif`
+   - `wget --no-check-certificate http://prodata.swmed.edu/humanPPI/bulk_download/SE3nv.sif`
+
+   To run RoseTTAFold2-PPI using the Singularity image, use the following command:
+
+   ```bash
+   singularity exec \
+     --bind /path/to/input_and_output_directory:/work/users \
+     --bind /path/to/rosettafold2-ppi/directory:/home/RoseTTAFold2-PPI \
+     --nv SE3nv.sif \
+     /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py input_file"
+   ```
+
+2. using conda environment:
+
+   ```bash
+   conda activate rf2ppi
+   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py input_file
 
 ### Input File Format
 
@@ -44,15 +64,22 @@ The output file will be saved as `[input_filename].npz`, where `input_filename` 
 
 
 ### Test
-```bash
-cd RoseTTAFold2-PPI
-exec_dir=$(pwd)
-singularity exec \
-    --bind $exec_dir:/home/RoseTTAFold2-PPI \
-    --nv SE3nv.sif \
-    /bin/bash -c "cd /home/RoseTTAFold2-PPI && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py examples/test.list"
-```
+1. using singularity:
 
+   ```bash
+   cd RoseTTAFold2-PPI
+   exec_dir=$(pwd)
+   singularity exec \
+       --bind $exec_dir:/home/RoseTTAFold2-PPI \
+       --nv SE3nv.sif \
+       /bin/bash -c "cd /home/RoseTTAFold2-PPI && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py examples/test.list"
+   ```
+2. using conda environment:
+   ```bash
+   conda activate rf2ppi
+   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py /path/to/RoseTTAFold2-PPI/examples/test.list
+   ```
+   
 The command will generate `test.list.log` and `test.list.npz` under `RoseTTAFold2-PPI/examples` which should be the same as files under `examples/expected_output`.
 
 **Note**: The performance is affected by the quality of the multiple sequence alignment. Our benchmarks suggest that **trimming** low-quality regions, such as **poorly conserved intrinsically disordered regions**, enhances the accuracy of RoseTTAFold2-PPI.
