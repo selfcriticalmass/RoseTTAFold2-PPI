@@ -3,32 +3,54 @@ A fast deep learning method for large-scale protein-protein interaction screenin
 
 ## Installation
 
-1. Download the environment image from one of the following links:
-
-   - [Download from conglab.swmed.edu](https://conglab.swmed.edu/humanPPI/SE3nv.sif)
-   - [Download from prodata.swmed.edu](http://prodata.swmed.edu/humanPPI/bulk_download/SE3nv.sif)
-
-2. Clone the repository:
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/CongLabCode/RoseTTAFold2-PPI.git
 
-3. Download the weights to RoseTTAFold2-PPI/src/model:
+2. Download the weights to RoseTTAFold2-PPI/src/model:
 
    ```bash
    cd RoseTTAFold2-PPI/src/models
-   wget --no-check-certificate https://conglab.swmed.edu/humanPPI/RF2-PPI.pt 
+   wget --no-check-certificate https://conglab.swmed.edu/humanPPI/downloads/RF2-PPI.pt
+
+3. Install conda environment (if cannot use singularity):
+
+   ```bash
+   conda create -n rf2ppi python=3.9
+   pip install numpy==1.21.2
+   pip install pandas==1.5.3
+   pip install torch==1.12.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
+   pip install biopython==1.79
+   pip install scipy==1.7.1
+   pip install einops
 
 ## Usage
-To run RoseTTAFold2-PPI using the Singularity image, use the following command:
 
-```bash
-singularity exec \
-  --bind /path/to/input_and_output_directory:/work/users \
-  --bind /path/to/rosettafold2-ppi/directory:/home/RoseTTAFold2-PPI \
-  --nv SE3nv.sif \
-  /bin/bash -c "cd /work/users; python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py input_file"
-```
+1. using singularity:
+
+   Download the environment image using **one** of the following commands:
+
+   - `wget --no-check-certificate https://conglab.swmed.edu/humanPPI/SE3nv.sif`
+   - `wget --no-check-certificate http://prodata.swmed.edu/humanPPI/bulk_download/SE3nv.sif`
+
+   To run RoseTTAFold2-PPI using the Singularity image, use the following command:
+
+   ```bash
+   singularity exec \
+     --bind /path/to/input_and_output_directory:/work/users \
+     --bind /path/to/rosettafold2-ppi/directory:/home/RoseTTAFold2-PPI \
+     --nv SE3nv.sif \
+     /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file -number_seqs 5000"
+   ```
+
+2. using conda environment:
+
+   ```bash
+   conda activate rf2ppi
+   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file -number_seqs 5000
+
+The **output** is a file named *input_file*.npz, which contains a dictionary. The keys are the input MSA file names specified in *input_fn*, and the values are contact probability matrices of shape (L1, L2), where L1 and L2 are the lengths of the two proteins. Each matrix entry represents the predicted contact probability between a residue in the first protein and a residue in the second.
 
 ### Input File Format
 
@@ -44,13 +66,31 @@ The output file will be saved as `[input_filename].npz`, where `input_filename` 
 
 
 ### Test
-```bash
-cd RoseTTAFold2-PPI
-exec_dir=$(pwd)
-singularity exec \
-    --bind $exec_dir:/home/RoseTTAFold2-PPI \
-    --nv SE3nv.sif \
-    /bin/bash -c "cd /home/RoseTTAFold2-PPI && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py examples/test.list"
-```
+1. using singularity:
 
+   ```bash
+   cd RoseTTAFold2-PPI
+   exec_dir=$(pwd)
+   singularity exec \
+       --bind $exec_dir:/home/RoseTTAFold2-PPI \
+       --nv SE3nv.sif \
+       /bin/bash -c "cd /home/RoseTTAFold2-PPI && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn examples/test.list -model_file src/models/RF2-PPI.pt"
+   ```
+2. using conda environment:
+   ```bash
+   conda activate rf2ppi
+   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py  -list_fn /path/to/RoseTTAFold2-PPI/examples/test.list -model_file /path/to/RoseTTAFold2-PPI/src/models/RF2-PPI.pt
+   ```
+   
 The command will generate `test.list.log` and `test.list.npz` under `RoseTTAFold2-PPI/examples` which should be the same as files under `examples/expected_output`.
+
+**Note**: The performance is affected by the quality of the multiple sequence alignment. Our benchmarks suggest that **trimming** low-quality regions, such as **poorly conserved intrinsically disordered regions**, enhances the accuracy of RoseTTAFold2-PPI. We only evaluated performance using paired alignments and therefore do not know how incorporating unpaired sequences for each protein would affect the results.
+
+
+
+
+
+## Reference
+
+Jing Zhang*, Ian R Humphreys*, Jimin Pei*, Jinuk Kim, Chulwon Choi, Rongqing Yuan, Jesse Durham, Siqi Liu, Hee-Jung Choi, Minkyung Baek, David Baker, Qian Cong. **Computing the Human Interactome.** (https://www.biorxiv.org/content/10.1101/2024.10.01.615885v1)
+

@@ -8,8 +8,13 @@ from AuxiliaryPredictor import DistanceNetwork
 
 
 N_cycle = 3
-current_FILE = os.path.abspath(__file__)
-current_DIR = os.path.dirname(current_FILE)
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-list_fn', required=True, help='List file containing input pMSA, L1 (length of the first protein)')
+    parser.add_argument('-model_file', required=True, help='The trained model to use')
+    parser.add_argument('-number_seqs', type=int, default=5000, help="Number of paired sequences to include for inference. Default is 5000")
+    args = parser.parse_args()
+    return args
 
 
 def prep_input(msa, L1, L2, device):
@@ -73,13 +78,14 @@ else:
     device = 'cpu'
 model = RF2trackModule().to(device)
 
-chk_fn = current_DIR + '/models/RF2-PPI.pt'
+args = get_args()
+num_seqs = args.number_seqs
+chk_fn = args.model_file
+input_fn = args.list_fn
 map_location={'cuda:%d'%0: device}
 checkpoint = torch.load(chk_fn, map_location=map_location)
 model.load_state_dict(checkpoint['model_state_dict'], strict=True)
 
-
-input_fn = sys.argv[1]
 results = {}
 fp = open(input_fn, 'r')
 lp = open(input_fn + '.log','w')
@@ -89,19 +95,28 @@ table = str.maketrans(dict.fromkeys(string.ascii_lowercase))
 for line in fp:
     words = line.split()
     if len(words) != 2:
-        lp.write(f'{words[0]} error! Do not have three columns\n')
+        lp.write(f'{words[0]} error! It does not have two columns\n')
         continue
     pair = words[0]
+
     msa = []
-    f_ent = open(pair)
-    for raw_line in f_ent:
-        if raw_line[0] == '>':
-            continue
-        raw_line = raw_line.rstrip()
-        msa.append(raw_line.translate(table))
-        if len(msa) >= 5000:
-            break
-    f_ent.close()
+    seq_line = []
+    with open(pair) as f_ent:
+        for raw_line in f_ent:
+            raw_line = raw_line.strip()
+            if not raw_line:
+                continue
+            if raw_line[0] == '>':
+                if seq_line:
+                    msa.append(''.join(seq_line).translate(table))
+                    seq_line = []
+                    if len(msa) >= num_seqs:
+                        break
+                continue
+            seq_line.append(raw_line)
+        if seq_line and len(msa) < num_seqs:
+            msa.append(''.join(seq_line).translate(table))
+
     t_length = len(msa[0])
     L1 = int(words[1])
     L2 = t_length - int(words[1])
