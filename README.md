@@ -41,14 +41,14 @@ A fast deep learning method for large-scale protein-protein interaction screenin
      --bind /path/to/input_and_output_directory:/work/users \
      --bind /path/to/rosettafold2-ppi/directory:/home/RoseTTAFold2-PPI \
      --nv SE3nv.sif \
-     /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py input_file"
+     /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file -number_seqs 5000"
    ```
 
 2. using conda environment:
 
    ```bash
    conda activate rf2ppi
-   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py input_file
+   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file -number_seqs 5000
 
 ### Input File Format
 
