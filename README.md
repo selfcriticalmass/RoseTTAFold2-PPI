@@ -93,4 +93,3 @@ The command will generate `test.list.log` and `test.list.npz` under `RoseTTAFold
 ## Reference
 
 Jing Zhang*, Ian R Humphreys*, Jimin Pei*, Jinuk Kim, Chulwon Choi, Rongqing Yuan, Jesse Durham, Siqi Liu, Hee-Jung Choi, Minkyung Baek, David Baker, Qian Cong. **Computing the Human Interactome.** (https://www.biorxiv.org/content/10.1101/2024.10.01.615885v1)
-
