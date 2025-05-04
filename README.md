@@ -50,6 +50,8 @@ A fast deep learning method for large-scale protein-protein interaction screenin
    conda activate rf2ppi
    python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file -number_seqs 5000
 
+The **output** is a file named *input_file*.npz, which contains a dictionary. The keys are the input MSA file names specified in *input_fn*, and the values are contact probability matrices of shape (L1, L2), where L1 and L2 are the lengths of the two proteins. Each matrix entry represents the predicted contact probability between a residue in the first protein and a residue in the second.
+
 ### Input File Format
 
 For the *input_file*, e.g., examples/input_file, each line should contain two columns:
