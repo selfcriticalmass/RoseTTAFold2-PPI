@@ -14,10 +14,19 @@ A fast deep learning method for large-scale protein-protein interaction screenin
    cd RoseTTAFold2-PPI/src/models
    wget --no-check-certificate https://conglab.swmed.edu/humanPPI/downloads/RF2-PPI.pt
 
-3. Install conda environment (if cannot use singularity):
+3A. Download our singularity image (hhsuite is needed if you want to use our paired MSA generation script): 
+
+   ```bash
+   cd RoseTTAFold2-PPI/
+   wget --no-check-certificate https://conglab.swmed.edu/humanPPI/downloads/SE3nv-20230612.sif
+   conda install -c conda-forge -c bioconda hhsuite
+
+3B. Install conda environment (if cannot use singularity):
 
    ```bash
    conda create -n rf2ppi python=3.9
+   conda activate rf2ppi
+   conda install -c conda-forge -c bioconda hhsuite
    pip install numpy==1.21.2
    pip install pandas==1.5.3
    pip install torch==1.12.1+cu113 -f https://download.pytorch.org/whl/torch_stable.html
@@ -29,43 +38,90 @@ A fast deep learning method for large-scale protein-protein interaction screenin
 
 1. using singularity:
 
-   Download the environment image using **one** of the following commands:
-
-   - `wget --no-check-certificate https://conglab.swmed.edu/humanPPI/SE3nv.sif`
-   - `wget --no-check-certificate http://prodata.swmed.edu/humanPPI/bulk_download/SE3nv.sif`
-
-   To run RoseTTAFold2-PPI using the Singularity image, use the following command:
-
    ```bash
    singularity exec \
      --bind /path/to/input_and_output_directory:/work/users \
      --bind /path/to/rosettafold2-ppi/directory:/home/RoseTTAFold2-PPI \
-     --nv SE3nv.sif \
-     /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file -number_seqs 5000"
+     --nv SE3nv_20230612.sif \
+     /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file"
    ```
 
 2. using conda environment:
 
    ```bash
    conda activate rf2ppi
-   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn input_file -model_file model_file -number_seqs 5000
-
-The **output** is a file named *input_file*.npz, which contains a dictionary. The keys are the input MSA file names specified in *input_fn*, and the values are contact probability matrices of shape (L1, L2), where L1 and L2 are the lengths of the two proteins. Each matrix entry represents the predicted contact probability between a residue in the first protein and a residue in the second.
+   python [/path/to/]RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn [input_file] -model_file [/path/to]/RoseTTAFold2-PPI/src/models/RF2-PPI.pt
 
 ### Input File Format
 
-For the *input_file*, e.g., examples/input_file, each line should contain two columns:
+For the *[input_file]*, e.g., examples/input_file, each line should contain two columns:
 
-1. **File path** of the concatenated pairwise multiple sequence alignment (MSA) input.
+1. **File path** of the paired multiple sequence alignment (MSA) input.
 2. **Length** of the first protein.
 
 **Note**: When using Singularity, paths should be relative to the directories mounted inside the container. If you prefer to use absolute paths, ensure they reference the file paths **inside the container** after mounting the directories.
 
-### Output File
-The output file will be saved as `[input_filename].npz`, where `input_filename` is the name of your input file.
+A simplified pipeline to generate paired MSAs is as follows:
 
+1. Search homologs for each protein using tools like HHblits (be sure to turn on "-all" flag in HHblits to output all the hits)
+2. Identify the closest hit (by sequence identity) to the query from each organism, and discard other hits
+3. Combine the resulting MSA to both proteins by concatenating the two hit sequences (one for each query) from the same organism
+4. Discard sequences that cannot be paired
+5. Remove redundancy by 90% or 95% sequence identity using hhfilter.
+
+#### Using omicMSA
+
+For most human proteins, you can generate paired MSAs using the omicMSAs for single proteins we shared at https://conglab.swmed.edu/humanPPI/downloads
+
+We share omicMSAs both as entire proteins (protein_omicMSAs.tar.gz) and segments (segment_omicMSAs.tar.gz, breaking long proteins into shorter segments and excluding low-quality positions in the MSAs).
+
+#### Commands for Generating Paired MSAs from omicMSAs
+
+To generate paired MSAs from the omicMSAs we shared, please use the following commands:
+
+##### For proteins:
+
+```bash
+python /path/to/RoseTTAFold2-PPI/generate_protein_pair_MSA.py [list_of_protein_pairs] [directory_with_single_protein_MSAs] [output_directory_with_paired_MSAs]
+
+##### For segments:
+
+```bash
+python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_pairs] [directory_with_single_segment_MSAs] [output_directory_with_paired_MSAs]
+
+#### Best Practices
+
+**Note:** The performance is affected by the quality of the paired MSAs. Our benchmarks suggest the following best practice can enhance the accuracy of RoseTTAFold2-PPI:
+
+1. Get deeper MSAs
+2. Remove low-quality regions, corresponding to poorly conserved intrinsically disordered regions
+3. Only include paired MSAs and remove any unpaired sequences
+4. Remove redundancy sequences at 90% or 95% sequence identity after "pairing"
+
+### Output Files
+
+The output file will be saved as `[input_file].npz` and `[input_file].log`, e.g., those in `examples/expected_output`.
+
+#### Log File Format (`[input_file].log`)
+
+The log file contains three columns:
+
+1. The input MSA file name
+2. Predicted Interaction probability for a protein/segment pair
+3. Compute time
+
+#### NPZ File Format (`[input_file].npz`)
+
+The NPZ file contains the residue-level interaction probabilities. The input MSA file names were used as keys that point to a numpy matrix containing the predicted interaction probability between a residue in the first protein and a residue in the second. This matrix has the shape of `(L1, L2)`, where `L1` and `L2` are the lengths of the two proteins.
+
+#### Important Note on Prediction Variability
+
+Similar to AlphaFold2, predicted interaction probability by RoseTTAFold-PPI is not deterministic. Our benchmark suggests that the standard deviation in predicted interaction probabilities might exceed 0.1 (out of 1) for about 5% of cases (**Fig. A** below), and such variability is more obvious for pairs with intermediate interaction probabilities (**Fig. B** below).
+
+![alt text](https://github.com/CongLabCode/RoseTTAFold2-PPI/blob/main/rf2_ppi.jpg?raw=true)
 
 ### Test
+
 1. using singularity:
 
    ```bash
@@ -81,15 +137,11 @@ The output file will be saved as `[input_filename].npz`, where `input_filename` 
    conda activate rf2ppi
    python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py  -list_fn /path/to/RoseTTAFold2-PPI/examples/test.list -model_file /path/to/RoseTTAFold2-PPI/src/models/RF2-PPI.pt
    ```
-   
+
 The command will generate `test.list.log` and `test.list.npz` under `RoseTTAFold2-PPI/examples` which should be the same as files under `examples/expected_output`.
 
 **Note**: The performance is affected by the quality of the multiple sequence alignment. Our benchmarks suggest that **trimming** low-quality regions, such as **poorly conserved intrinsically disordered regions**, enhances the accuracy of RoseTTAFold2-PPI. We only evaluated performance using paired alignments and therefore do not know how incorporating unpaired sequences for each protein would affect the results.
 
-
-
-
-
-## Reference
+### Reference
 
 Jing Zhang*, Ian R Humphreys*, Jimin Pei*, Jinuk Kim, Chulwon Choi, Rongqing Yuan, Jesse Durham, Siqi Liu, Hee-Jung Choi, Minkyung Baek, David Baker, Qian Cong. **Computing the Human Interactome.** (https://www.biorxiv.org/content/10.1101/2024.10.01.615885v1)

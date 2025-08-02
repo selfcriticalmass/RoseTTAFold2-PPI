@@ -89,7 +89,7 @@ model.load_state_dict(checkpoint['model_state_dict'], strict=True)
 results = {}
 fp = open(input_fn, 'r')
 lp = open(input_fn + '.log','w')
-
+lp.write('Input_MSA\tInteraction_probability\tCompute_time\n')
 model.eval()
 table = str.maketrans(dict.fromkeys(string.ascii_lowercase))
 for line in fp:
@@ -143,16 +143,16 @@ for line in fp:
             logit_dist = output_i[0][0]
             prob_dist = torch.nn.Softmax(dim=1)(logit_dist)
             p_bind = prob_dist[:,:20].sum(dim=1) # (B, L, L)
-            p_bind = p_bind*(1.0-network_input['same_chain'].float()) # (B, L, L)
+            p_bind = p_bind * (1.0 - network_input['same_chain'].float()) # (B, L, L)
             p_bind = torch.nn.MaxPool2d(p_bind.shape[1:])(p_bind).view(-1)
             p_bind = torch.clamp(p_bind, min=0.0, max=1.0)
             _, N_seq, N_res = network_input['msa_orig'].shape
             prob = np.sum(prob_dist[0].permute(1,2,0).detach().cpu().numpy()[:L1,L1:,:20], axis=-1).astype(np.float16)
+            
             results[pair] = prob
             endT = time.time()
-            lp.write(pair + '\t' + str(round(p_bind.item(), 6)) + '\t' + str(N_seq) + '\t' + str(N_res) + '\t' + str(round(endT-startT, 6)) + '\n')
+            lp.write(pair + '\t' + str(round(p_bind.item(), 6)) + '\t' + str(round(endT-startT, 6)) + '\n')
 np.savez_compressed(input_fn + '.npz', **results)
-lp.write('done\n')
 lp.close()
 fp.close()
 print(input_fn, 'done')

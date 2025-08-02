@@ -1,0 +1,24 @@
+# required inputs for RF2-PPI is paired MSAs for two proteins, where protein sequences from the same organism are concatenated. 
+# removing redundancy by hhfilter (at 95% or 90% sequence identity) improves performance.
+# using unpaired sequences decrease the performance of RF2-PPI.
+# for most human proteins, you can generate paired MSAs using the omicMSAs for single proteins we shared at http://prodata.swmed.edu/humanPPI/bulk_download
+# for other proteins, you need to prepare your own paired MSAs.
+
+# we share omicMSAs both as entire proteins and segments (one or multiple domains).
+# MSAs for segments do not contain low-quality positions.
+# MSAs for entire proteins contain the low-quality positions, and we recommend removing these positions. 
+# to generate paired MSAs from the omicMSAs we shared, please use the following command:
+# these scripts require hhfilter from the hhsuite package, which can be installed by "conda install -c conda-forge -c bioconda hhsuite".
+python [/path/to]/RoseTTAFold2-PPI/generate_protein_pair_MSA.py [list_of_protein_pairs] [directory_with_single_protein_MSAs] [output_directory_with_paired_MSAs] # if you start with our omicMSAs for proteins
+python [/path/to]/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_pairs] [directory_with_single_segment_MSAs] [output_directory_with_paired_MSAs] # if you start with our omicMSAs for segments
+
+# the input file for RoseTTAFold2-PPI should be a list with protein pairs to be analyzed. 
+# each line should have two columns, first is the path to the input paired MSA for this pair, and the second is the length of the first protein/segment. 
+# example input files are like protein_pairs_input or segment_pairs_input in this folder. 
+
+# to run RoseTTAFold2-PPI using the conda environment you prepared.
+source activate rf2ppi # follow our instructioin on github to create this environment
+python ../src/predict_list_PPI.py -list_fn [input_file] -model_file ../src/models/RF2-PPI.pt
+
+# to run RoseTTAFold2-PPI using the conda environment you prepared.
+singularity exec --bind [/path/to]/RoseTTAFold2-PPI:/home/RoseTTAFold2-PPI --nv [/path/to]/RoseTTAFold2-PPI/SE3nv.sif /bin/bash -c "cd /home/RoseTTAFold2-PPI/examples && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn [input_file] -model_file /home/RoseTTAFold2-PPI/src/models/RF2-PPI.pt"
