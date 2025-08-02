@@ -20,6 +20,8 @@ A fast deep learning method for large-scale protein-protein interaction screenin
    cd RoseTTAFold2-PPI/
    wget --no-check-certificate https://conglab.swmed.edu/humanPPI/downloads/SE3nv-20230612.sif
    conda install -c conda-forge -c bioconda hhsuite
+   ```
+
 
 3B. Install conda environment (if cannot use singularity):
 
@@ -33,7 +35,7 @@ A fast deep learning method for large-scale protein-protein interaction screenin
    pip install biopython==1.79
    pip install scipy==1.7.1
    pip install einops
-
+   ```
 ## Usage
 
 1. using singularity:
