@@ -52,6 +52,6 @@ for pair in pairs:
         rp.write(seqA + seqB + '\n')
     rp.close()
     os.system('hhfilter -i ' + outdir + '/' + pair + '.a3m -o ' + outdir + '/' + pair + '.i90.a3m -id 90 >& tmplog')
-    os.system('rm segment_paired_msas/' + pair + '.a3m')
-    logp.write('segment_paired_msas/' + pair + '.i90.a3m\t' + str(len(qseqA)) + '\n')
+    os.system('rm ' + outdir +'/' + pair + '.a3m')
+    logp.write(outdir + '/' + pair + '.i90.a3m\t' + str(len(qseqA)) + '\n')
 logp.close()
