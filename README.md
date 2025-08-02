@@ -54,7 +54,7 @@ A fast deep learning method for large-scale protein-protein interaction screenin
    conda activate rf2ppi
    python [/path/to/]RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn [input_file] -model_file [/path/to]/RoseTTAFold2-PPI/src/models/RF2-PPI.pt
 
-### Input File Format
+## Input
 
 For the *[input_file]*, e.g., examples/input_file, each line should contain two columns:
 
@@ -71,23 +71,23 @@ A simplified pipeline to generate paired MSAs is as follows:
 4. Discard sequences that cannot be paired
 5. Remove redundancy by 90% or 95% sequence identity using hhfilter.
 
-#### Using omicMSA
+### Using omicMSA
 
 For most human proteins, you can generate paired MSAs using the omicMSAs for single proteins we shared at https://conglab.swmed.edu/humanPPI/downloads
 
 We share omicMSAs both as entire proteins (protein_omicMSAs.tar.gz) and segments (segment_omicMSAs.tar.gz, breaking long proteins into shorter segments and excluding low-quality positions in the MSAs).
 
-#### Commands for Generating Paired MSAs from omicMSAs
+### Commands for Generating Paired MSAs from omicMSAs
 
 To generate paired MSAs from the omicMSAs we shared, please use the following commands:
 
-##### For proteins:
+#### For proteins:
 
 ```bash
 python /path/to/RoseTTAFold2-PPI/generate_protein_pair_MSA.py [list_of_protein_pairs] [directory_with_single_protein_MSAs] [output_directory_with_paired_MSAs]
 ```
 
-##### For segments:
+#### For segments:
 
 ```bash
 python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_pairs] [directory_with_single_segment_MSAs] [output_directory_with_paired_MSAs]
@@ -102,11 +102,11 @@ python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_p
 3. Only include paired MSAs and remove any unpaired sequences
 4. Remove redundancy sequences at 90% or 95% sequence identity after "pairing"
 
-### Output Files
+## Output Files
 
 The output file will be saved as `[input_file].npz` and `[input_file].log`, e.g., those in `examples/expected_output`.
 
-#### Log File Format (`[input_file].log`)
+### Log File Format (`[input_file].log`)
 
 The log file contains three columns:
 
@@ -114,17 +114,17 @@ The log file contains three columns:
 2. Predicted Interaction probability for a protein/segment pair
 3. Compute time
 
-#### NPZ File Format (`[input_file].npz`)
+### NPZ File Format (`[input_file].npz`)
 
 The NPZ file contains the residue-level interaction probabilities. The input MSA file names were used as keys that point to a numpy matrix containing the predicted interaction probability between a residue in the first protein and a residue in the second. This matrix has the shape of `(L1, L2)`, where `L1` and `L2` are the lengths of the two proteins.
 
-#### Important Note on Prediction Variability
+### Important Note on Prediction Variability
 
 Similar to AlphaFold2, predicted interaction probability by RoseTTAFold-PPI is not deterministic. Our benchmark suggests that the standard deviation in predicted interaction probabilities might exceed 0.1 (out of 1) for about 5% of cases (**Fig. A** below), and such variability is more obvious for pairs with intermediate interaction probabilities (**Fig. B** below).
 
-![alt text](https://github.com/CongLabCode/RoseTTAFold2-PPI/blob/main/rf2_ppi.jpg?raw=true)
+![alt text](https://github.com/CongLabCode/RoseTTAFold2-PPI/blob/main/rf2_ppi.png?raw=true)
 
-### Test
+## Test
 
 1. using singularity:
 
@@ -146,6 +146,6 @@ The command will generate `test.list.log` and `test.list.npz` under `RoseTTAFold
 
 **Note**: The performance is affected by the quality of the multiple sequence alignment. Our benchmarks suggest that **trimming** low-quality regions, such as **poorly conserved intrinsically disordered regions**, enhances the accuracy of RoseTTAFold2-PPI. We only evaluated performance using paired alignments and therefore do not know how incorporating unpaired sequences for each protein would affect the results.
 
-### Reference
+## Reference
 
 Jing Zhang*, Ian R Humphreys*, Jimin Pei*, Jinuk Kim, Chulwon Choi, Rongqing Yuan, Jesse Durham, Siqi Liu, Hee-Jung Choi, Minkyung Baek, David Baker, Qian Cong. **Computing the Human Interactome.** (https://www.biorxiv.org/content/10.1101/2024.10.01.615885v1)
