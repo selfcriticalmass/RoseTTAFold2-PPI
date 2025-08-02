@@ -85,11 +85,13 @@ To generate paired MSAs from the omicMSAs we shared, please use the following co
 
 ```bash
 python /path/to/RoseTTAFold2-PPI/generate_protein_pair_MSA.py [list_of_protein_pairs] [directory_with_single_protein_MSAs] [output_directory_with_paired_MSAs]
+```
 
 ##### For segments:
 
 ```bash
 python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_pairs] [directory_with_single_segment_MSAs] [output_directory_with_paired_MSAs]
+```
 
 #### Best Practices
 
