@@ -134,17 +134,16 @@ Similar to AlphaFold2, predicted interaction probability by RoseTTAFold-PPI is n
    singularity exec \
        --bind $exec_dir:/home/RoseTTAFold2-PPI \
        --nv SE3nv.sif \
-       /bin/bash -c "cd /home/RoseTTAFold2-PPI && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn examples/test.list -model_file src/models/RF2-PPI.pt"
+       /bin/bash -c "cd /home/RoseTTAFold2-PPI && python /home/RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn examples/protein_pairs_input -model_file src/models/RF2-PPI.pt"
    ```
 2. using conda environment:
    ```bash
    conda activate rf2ppi
-   python /path/to/RoseTTAFold2-PPI/src/predict_list_PPI.py  -list_fn /path/to/RoseTTAFold2-PPI/examples/test.list -model_file /path/to/RoseTTAFold2-PPI/src/models/RF2-PPI.pt
+   cd RoseTTAFold2-PPI/examples
+   python ../src/predict_list_PPI.py -list_fn segment_pairs_input -model_file ../src/models/RF2-PPI.pt
    ```
 
-The command will generate `test.list.log` and `test.list.npz` under `RoseTTAFold2-PPI/examples` which should be the same as files under `examples/expected_output`.
-
-**Note**: The performance is affected by the quality of the multiple sequence alignment. Our benchmarks suggest that **trimming** low-quality regions, such as **poorly conserved intrinsically disordered regions**, enhances the accuracy of RoseTTAFold2-PPI. We only evaluated performance using paired alignments and therefore do not know how incorporating unpaired sequences for each protein would affect the results.
+These commands will generate outputs similar to those in examples/expected_output.
 
 ## Reference
 
