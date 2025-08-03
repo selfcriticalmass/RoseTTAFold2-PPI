@@ -1,6 +1,7 @@
 # RoseTTAFold2-PPI
 A fast deep learning method for large-scale protein-protein interaction screening.
 
+
 ## Installation
 
 1. Clone the repository:
@@ -40,6 +41,7 @@ A fast deep learning method for large-scale protein-protein interaction screenin
       pip install einops
       ```
 
+
 ## Usage
 
 1. using singularity:
@@ -57,6 +59,7 @@ A fast deep learning method for large-scale protein-protein interaction screenin
    ```bash
    conda activate rf2ppi
    python [/path/to/]RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn [input_file] -model_file [/path/to]/RoseTTAFold2-PPI/src/models/RF2-PPI.pt
+
 
 ## Input
 
@@ -83,7 +86,7 @@ For most human proteins, you can generate paired MSAs using the omicMSAs for sin
 
 We share omicMSAs both as entire proteins (protein_omicMSAs.tar.gz) and segments (segment_omicMSAs.tar.gz, breaking long proteins into shorter segments and excluding low-quality positions in the MSAs).
 
-### Commands for Generating Paired MSAs from omicMSAs
+### Commands for generating paired MSAs from omicMSAs
 
 To generate paired MSAs from the omicMSAs we shared, please use the following commands:
 
@@ -99,7 +102,7 @@ python /path/to/RoseTTAFold2-PPI/generate_protein_pair_MSA.py [list_of_protein_p
 python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_pairs] [directory_with_single_segment_MSAs] [output_directory_with_paired_MSAs]
 ```
 
-#### Best Practices
+### Best practices
 
 **Note:** The performance is affected by the quality of the paired MSAs. Our benchmarks suggest the following best practice can enhance the accuracy of RoseTTAFold2-PPI:
 
@@ -107,6 +110,7 @@ python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_p
 2. Remove low-quality regions, corresponding to poorly conserved intrinsically disordered regions
 3. Only include paired MSAs and remove any unpaired sequences
 4. Remove redundancy sequences at 90% or 95% sequence identity after "pairing"
+
 
 ## Output
 
@@ -130,6 +134,7 @@ Similar to AlphaFold2, predicted interaction probability by RoseTTAFold-PPI is n
 
 ![alt text](https://github.com/CongLabCode/RoseTTAFold2-PPI/blob/main/rf2_ppi.png?raw=true)
 
+
 ## Test
 
 1. using singularity:
@@ -150,6 +155,7 @@ Similar to AlphaFold2, predicted interaction probability by RoseTTAFold-PPI is n
    ```
 
 These commands will generate outputs similar to those in examples/expected_output.
+
 
 ## Reference
 
