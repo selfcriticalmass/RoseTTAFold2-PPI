@@ -41,6 +41,7 @@ A fast deep learning method for large-scale protein-protein interaction screenin
       pip install einops
       ```
 
+<br>
 
 ## Usage
 
@@ -60,6 +61,7 @@ A fast deep learning method for large-scale protein-protein interaction screenin
    conda activate rf2ppi
    python [/path/to/]RoseTTAFold2-PPI/src/predict_list_PPI.py -list_fn [input_file] -model_file [/path/to]/RoseTTAFold2-PPI/src/models/RF2-PPI.pt
 
+<br>
 
 ## Input
 
@@ -111,6 +113,7 @@ python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_p
 3. Only include paired MSAs and remove any unpaired sequences
 4. Remove redundancy sequences at 90% or 95% sequence identity after "pairing"
 
+<br>
 
 ## Output
 
@@ -134,6 +137,7 @@ Similar to AlphaFold2, predicted interaction probability by RoseTTAFold-PPI is n
 
 ![alt text](https://github.com/CongLabCode/RoseTTAFold2-PPI/blob/main/rf2_ppi.png?raw=true)
 
+<br>
 
 ## Test
 
@@ -156,6 +160,7 @@ Similar to AlphaFold2, predicted interaction probability by RoseTTAFold-PPI is n
 
 These commands will generate outputs similar to those in examples/expected_output.
 
+<br>
 
 ## Reference
 
