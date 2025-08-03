@@ -60,6 +60,8 @@ A fast deep learning method for large-scale protein-protein interaction screenin
 
 ## Input
 
+### Building your own paired MSAs
+
 For the *[input_file]*, e.g., examples/input_file, each line should contain two columns:
 
 1. **File path** of the paired multiple sequence alignment (MSA) input.
@@ -71,7 +73,7 @@ A simplified pipeline to generate paired MSAs is as follows:
 
 1. Search homologs for each protein using tools like HHblits (be sure to turn on "-all" flag in HHblits to output all the hits)
 2. Identify the closest hit (by sequence identity) to the query from each organism, and discard other hits
-3. Combine the resulting MSA to both proteins by concatenating the two hit sequences (one for each query) from the same organism
+3. Combine the resulting MSAs of both proteins by concatenating the two hit sequences (one for each query) from the same organism
 4. Discard sequences that cannot be paired
 5. Remove redundancy by 90% or 95% sequence identity using hhfilter.
 
@@ -106,7 +108,7 @@ python /path/to/RoseTTAFold2-PPI/generate_segment_pair_MSA.py [list_of_segment_p
 3. Only include paired MSAs and remove any unpaired sequences
 4. Remove redundancy sequences at 90% or 95% sequence identity after "pairing"
 
-## Output Files
+## Output
 
 The output file will be saved as `[input_file].npz` and `[input_file].log`, e.g., those in `examples/expected_output`.
 
@@ -120,7 +122,7 @@ The log file contains three columns:
 
 ### NPZ File Format (`[input_file].npz`)
 
-The NPZ file contains the residue-level interaction probabilities. The input MSA file names were used as keys that point to a numpy matrix containing the predicted interaction probability between a residue in the first protein and a residue in the second. This matrix has the shape of `(L1, L2)`, where `L1` and `L2` are the lengths of the two proteins.
+The npz file contains the inter-residue interaction probabilities. The input MSA file names were used as keys that point to a numpy matrix containing the predicted interaction probability between a residue in the first protein and a residue in the second. This matrix has the shape of `(L1, L2)`, where `L1` and `L2` are the lengths of the two proteins.
 
 ### Important Note on Prediction Variability
 
