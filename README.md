@@ -77,7 +77,7 @@ A simplified pipeline to generate paired MSAs is as follows:
 
 ### Using omicMSA
 
-For most human proteins, you can generate paired MSAs using the omicMSAs for single proteins we shared at https://conglab.swmed.edu/humanPPI/downloads
+For most human proteins, you can generate paired MSAs using the omicMSAs for single proteins we shared at https://conglab.swmed.edu/humanPPI/humanPPI_download.html
 
 We share omicMSAs both as entire proteins (protein_omicMSAs.tar.gz) and segments (segment_omicMSAs.tar.gz, breaking long proteins into shorter segments and excluding low-quality positions in the MSAs).
 
